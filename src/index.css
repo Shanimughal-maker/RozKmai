@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+/* Ensure all clickable and interactive elements use pointer cursor, and disabled elements use not-allowed cursor */
+button:not(:disabled):not([aria-disabled="true"]),
+[role="button"]:not([aria-disabled="true"]):not(:disabled),
+a[href],
+select:not(:disabled),
+input[type="checkbox"]:not(:disabled),
+input[type="radio"]:not(:disabled),
+label[for],
+summary {
+  cursor: pointer;
+}
+
+button:disabled,
+button[disabled],
+[role="button"][aria-disabled="true"],
+[aria-disabled="true"],
+input:disabled,
+select:disabled {
+  cursor: not-allowed !important;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: inline-flex;
+  animation: marquee 28s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}

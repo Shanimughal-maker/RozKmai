@@ -1,0 +1,92 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with PKR balance, streak, daily claims, and referral data",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique Firebase Auth UID" },
+        "email": { "type": "string", "description": "User email address" },
+        "name": { "type": "string", "description": "User display name" },
+        "balance": { "type": "number", "description": "Current PKR balance (stored as float)" },
+        "createdAt": { "type": "string", "description": "Account creation ISO timestamp" },
+        "streakCount": { "type": "number", "description": "Current daily streak count" },
+        "lastActiveDate": { "type": "string", "description": "Last active date YYYY-MM-DD" },
+        "referralCode": { "type": "string", "description": "Unique referral code" },
+        "referredBy": { "type": "string", "description": "UID of referrer if applicable" },
+        "referralCount": { "type": "number", "description": "Total number of users referred" },
+        "referralEarnings": { "type": "number", "description": "Total PKR earned from referrals" },
+        "totalAdsWatched": { "type": "number", "description": "Lifetime ads watched" },
+        "todayAdsWatched": { "type": "number", "description": "Number of ads watched today" },
+        "todayDate": { "type": "string", "description": "Today date in YYYY-MM-DD format" },
+        "todayEarned": { "type": "number", "description": "Total PKR earned today" },
+        "lastClaimTimestamp": { "type": "number", "description": "Timestamp of last claimed ad" }
+      },
+      "required": ["uid", "email", "name", "balance", "createdAt", "streakCount", "referralCode"]
+    },
+    "AdLink": {
+      "title": "AdLink",
+      "description": "Direct link ad with custom countdown timer and active flag",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique ad link ID" },
+        "url": { "type": "string", "description": "Ad destination URL" },
+        "timerSeconds": { "type": "number", "description": "Required wait time in seconds" },
+        "active": { "type": "boolean", "description": "Whether this ad link is actively served" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" }
+      },
+      "required": ["id", "url", "timerSeconds", "active", "createdAt"]
+    },
+    "Withdrawal": {
+      "title": "Withdrawal",
+      "description": "Withdrawal request for PKR payout via local payment methods",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Withdrawal request ID" },
+        "uid": { "type": "string", "description": "UID of the requesting user" },
+        "userEmail": { "type": "string", "description": "Email of the requesting user" },
+        "userName": { "type": "string", "description": "Name of the requesting user" },
+        "amount": { "type": "number", "description": "PKR amount requested" },
+        "method": { "type": "string", "enum": ["Easypaisa", "JazzCash", "Bank Transfer"], "description": "Payment method" },
+        "accountDetails": { "type": "string", "description": "Account number / title details" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"], "description": "Processing status" },
+        "createdAt": { "type": "string", "description": "Request creation timestamp" }
+      },
+      "required": ["id", "uid", "userEmail", "amount", "method", "accountDetails", "status", "createdAt"]
+    },
+    "ClaimSession": {
+      "title": "ClaimSession",
+      "description": "Tracks active ad view sessions to enforce server-side timer and prevent spoofing",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Session ID" },
+        "uid": { "type": "string", "description": "UID of the user" },
+        "adLinkId": { "type": "string", "description": "ID of the ad link opened" },
+        "timerSeconds": { "type": "number", "description": "Required wait time" },
+        "startTime": { "type": "number", "description": "Timestamp in milliseconds when ad opened" },
+        "accumulatedHiddenMs": { "type": "number", "description": "Accumulated milliseconds spent with app tab hidden/ad tab focused" },
+        "lastHiddenStart": { "type": "number", "description": "Timestamp when app tab last became hidden" },
+        "completed": { "type": "boolean", "description": "Whether reward has been claimed" }
+      },
+      "required": ["id", "uid", "adLinkId", "timerSeconds", "startTime", "completed"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profiles and wallet state"
+    },
+    "/adLinks/{adLinkId}": {
+      "schema": { "$ref": "#/entities/AdLink" },
+      "description": "Managed ad links"
+    },
+    "/withdrawals/{withdrawalId}": {
+      "schema": { "$ref": "#/entities/Withdrawal" },
+      "description": "Withdrawal payout requests"
+    },
+    "/claimSessions/{sessionId}": {
+      "schema": { "$ref": "#/entities/ClaimSession" },
+      "description": "Ad viewing verification sessions"
+    }
+  }
+}

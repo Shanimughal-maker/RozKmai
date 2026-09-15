@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RozKamai</title>
+    <meta name="description" content="Watch & Earn Web App with daily streaks, variable PKR rewards, local withdrawals, and dynamic ad management." />
+    <meta property="og:title" content="RozKamai" />
+    <meta property="og:description" content="Watch & Earn Web App with daily streaks, variable PKR rewards, local withdrawals, and dynamic ad management." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script>
+      (function() {
+        if (typeof window === 'undefined') return;
+        // Suppress and handle non-critical third-party / webview miniProgram bridge errors
+        window.addEventListener('error', function(event) {
+          if (event && (event.message?.includes('miniProgram') || event.error?.message?.includes('miniProgram'))) {
+            event.preventDefault();
+            if (typeof event.stopImmediatePropagation === 'function') {
+              event.stopImmediatePropagation();
+            }
+            return true;
+          }
+        }, true);
+        window.addEventListener('unhandledrejection', function(event) {
+          if (event && event.reason && String(event.reason).includes('miniProgram')) {
+            event.preventDefault();
+            if (typeof event.stopImmediatePropagation === 'function') {
+              event.stopImmediatePropagation();
+            }
+          }
+        }, true);
+
+        // Provide safe fallback objects for webview bridges (WeChat, Alipay, Baidu, etc.)
+        function createSafeProxy() {
+          var noop = function() {};
+          return new Proxy(noop, {
+            get: function(target, prop) {
+              if (prop === 'getEnv') {
+                return function(cb) { if (typeof cb === 'function') cb({ miniprogram: false }); };
+              }
+              if (typeof prop === 'symbol' || prop === 'then' || prop === 'toJSON') {
+                return undefined;
+              }
+              return createSafeProxy();
+            },
+            apply: function() {
+              return createSafeProxy();
+            }
+          });
+        }
+        var dummy = createSafeProxy();
+        ['wx', 'my', 'swan', 'tt', 'ks'].forEach(function(key) {
+          try {
+            if (!window[key]) {
+              window[key] = { miniProgram: dummy };
+            } else if (typeof window[key] === 'object' && !window[key].miniProgram) {
+              window[key].miniProgram = dummy;
+            }
+          } catch (e) {}
+        });
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-slate-50 text-slate-900 font-['Plus_Jakarta_Sans',sans-serif] antialiased">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
