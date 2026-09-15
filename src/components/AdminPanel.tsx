@@ -122,24 +122,9 @@ export function AdminPanel() {
     }
   }, [isAdmin]);
 
+  // If a non-admin reaches this component, render nothing and prevent any data exposure
   if (!isAdmin) {
-    return (
-      <div className="p-8 max-w-md mx-auto my-12 bg-white rounded-3xl border border-rose-200 text-center shadow-sm">
-        <AlertTriangle className="w-12 h-12 text-rose-500 mx-auto mb-3" />
-        <h3 className="text-xl font-bold text-slate-900 font-['Outfit']">
-          Access Restricted
-        </h3>
-        <p className="text-xs text-slate-500 mt-2">
-          The Admin Panel is reserved strictly for the configured administrator email:
-        </p>
-        <div className="mt-3 py-2 px-3 bg-slate-100 rounded-xl text-xs font-mono text-slate-700 font-bold">
-          {ENV.ADMIN_EMAIL}
-        </div>
-        <p className="text-[11px] text-slate-400 mt-2">
-          Currently logged in as: {currentUser?.email || 'Not logged in'}
-        </p>
-      </div>
-    );
+    return null;
   }
 
   // Handle Save Ad Link (Create or Update)

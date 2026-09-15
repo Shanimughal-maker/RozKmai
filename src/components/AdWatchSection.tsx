@@ -43,7 +43,7 @@ export function AdWatchSection({
   onStreakComplete,
   onRequireAuth,
 }: AdWatchSectionProps) {
-  const { currentUser, userProfile, refreshProfile } = useAuth();
+  const { currentUser, userProfile, refreshProfile, isAdmin } = useAuth();
 
   const [adLinks, setAdLinks] = useState<AdLink[]>([]);
   const [selectedAd, setSelectedAd] = useState<AdLink | null>(null);
@@ -85,10 +85,12 @@ export function AdWatchSection({
             active: true,
             createdAt: new Date().toISOString(),
           };
-          try {
-            await setDoc(doc(db, 'adLinks', initialLink.id), initialLink);
-          } catch (seedErr) {
-            console.warn('Unable to persist seed ad link to Firestore:', seedErr);
+          if (isAdmin) {
+            try {
+              await setDoc(doc(db, 'adLinks', initialLink.id), initialLink);
+            } catch (seedErr) {
+              console.warn('Unable to persist seed ad link to Firestore:', seedErr);
+            }
           }
           setAdLinks([initialLink]);
         } else {

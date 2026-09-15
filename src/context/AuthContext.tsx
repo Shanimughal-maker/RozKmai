@@ -59,12 +59,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Check admin status
-  const userEmailLower = currentUser?.email?.toLowerCase().trim() || '';
+  // Check admin status: strictly match import.meta.env.VITE_ADMIN_EMAIL (case-insensitive, trimmed)
+  const configuredAdminEmail = (
+    import.meta.env.VITE_ADMIN_EMAIL ||
+    ENV.ADMIN_EMAIL ||
+    ''
+  )
+    .toLowerCase()
+    .trim();
+  const userEmail = (currentUser?.email || '').toLowerCase().trim();
   const isAdmin = Boolean(
-    userEmailLower &&
-      (userEmailLower === ENV.ADMIN_EMAIL ||
-        userEmailLower === 'chromebook160nb@gmail.com')
+    currentUser &&
+    configuredAdminEmail &&
+    userEmail &&
+    userEmail === configuredAdminEmail
   );
 
   useEffect(() => {

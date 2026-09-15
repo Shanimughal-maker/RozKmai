@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Header } from './components/Header';
 import { Ticker } from './components/Ticker';
@@ -30,6 +30,46 @@ function MainApp() {
   const [jackpotType, setJackpotType] = useState<'jackpot' | 'streak'>('jackpot');
   const [jackpotAmount, setJackpotAmount] = useState<number>(0);
   const [streakDays, setStreakDays] = useState<number>(7);
+
+  // Route guarding: if a non-admin user somehow navigates to admin tab or URL, redirect immediately to dashboard
+  useEffect(() => {
+    if (activeTab === 'admin' && !isAdmin) {
+      setActiveTab('dashboard');
+    }
+  }, [activeTab, isAdmin]);
+
+  // URL / hash listener: protect direct URL navigation (e.g. /#admin, ?tab=admin, /admin)
+  useEffect(() => {
+    const handleUrlRoute = () => {
+      const hash = window.location.hash.toLowerCase().replace('#', '').trim();
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = (params.get('tab') || '').toLowerCase().trim();
+      const pathname = window.location.pathname.toLowerCase().trim();
+
+      const isTargetingAdmin = hash === 'admin' || tabParam === 'admin' || pathname === '/admin';
+
+      if (isTargetingAdmin) {
+        if (isAdmin) {
+          setActiveTab('admin');
+        } else {
+          // Immediately redirect non-admin away to dashboard and clean the URL
+          setActiveTab('dashboard');
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+        }
+      }
+    };
+
+    handleUrlRoute();
+    window.addEventListener('hashchange', handleUrlRoute);
+    window.addEventListener('popstate', handleUrlRoute);
+
+    return () => {
+      window.removeEventListener('hashchange', handleUrlRoute);
+      window.removeEventListener('popstate', handleUrlRoute);
+    };
+  }, [isAdmin]);
 
   const handleTriggerJackpot = (amount: number) => {
     setJackpotType('jackpot');
@@ -193,8 +233,8 @@ function MainApp() {
           />
         )}
 
-        {/* ADMIN TAB */}
-        {activeTab === 'admin' && <AdminPanel />}
+        {/* ADMIN TAB - Only rendered if user is verified admin */}
+        {activeTab === 'admin' && isAdmin && <AdminPanel />}
       </main>
 
       {/* Auth Modal */}

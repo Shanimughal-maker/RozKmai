@@ -1,23 +1,27 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { initializeFirestore, getFirestore } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId || '(default)');
 
-// Skill requirement: Validate connection to Firestore on boot
-async function testConnection() {
-  try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.warn('Firestore offline connection check: please check configuration.');
-    }
-  }
+const databaseId = firebaseConfig.firestoreDatabaseId || '(default)';
+
+let firestoreDb;
+try {
+  firestoreDb = initializeFirestore(
+    app,
+    {
+      experimentalForceLongPolling: true,
+    },
+    databaseId
+  );
+} catch {
+  firestoreDb = getFirestore(app, databaseId);
 }
 
-testConnection();
+export const db = firestoreDb;
 
 export default app;
+
